@@ -1,0 +1,185 @@
+DATS 6101 - Introduction to Data Science
+Spring 2017
+
+COURSE AND CONTACT INFORMATION 
+Section: 13
+Time: 2:20 to 3:10
+Location: SEH 7040
+
+INSTRUCTOR 
+Name: Brian Wright 
+Campus Address: Corcoran Hall 426a
+Phone: 703-244-5573
+Email: bwright6@email.gwu.edu
+Office hours: Upon Request
+
+Teaching Assistant 
+Name:TBD
+Campus Address:
+Email: 
+
+COURSE DESCRIPTION 
+Called the “Sexiest Job Title of the 21st Century” by the Harvard Business Review, Data Science and analytics are a booming industry.  But what is a Data Scientist, what do they do, and how do you become one?  These questions and more will be discussed and answered in this introductory course.  This class covers the basic ideas and techniques of data science, including its definition and the context in data-driven computation and practical applications. 
+
+LEARNING OUTCOMES 
+As a result of completing this course, students will be able to 
+1.	Understand the fundamental principles of data science and the variety and types of data scientists
+2.	Understand the research process and lifecycle associated with answering data driven problems 
+3.	Initial understanding of statistical models and how they are applied to data problems
+4.	Gain experience with the using R to do analyses
+
+COURSE PREREQUISITE
+You are expected to have a basic understanding of R coding, either through online resources or previous experiences.
+
+TENTATIVE SCHEDULE
+
+Topics	Reading (Before Class)	Topic	Activity	Assignment (Due following Tuesday)
+
+Topic 1	Doing Data Science:
+    Preface/Chapter 1
+        Art of Data Science: Sections 1 and 2	History of Data Science, What is a Data Scientist, Data Science Lifecycle	R Installed
+R Studio Installed 
+Discussion/Ice Breaker
+Find a Data Science Job
+Datacamp:
+Intro to R: 1&2
+
+Topic 2 	Art of Data Science Chapters 3 
+The Art of R Programming: Intro and Getting Started  
+
+Articles:
+-	Analyzing the Analyzers
+-	Critical Questions for Big Data 
+Research Process/Asking a Question/R Overview (Tidyverse/Dplyr)/ Exploratory Data Analysis I 	Discussion/Set Project Groups	
+
+Topic 3 	Art of Data Chapter 4
+Reading: Doing Data Science: Chapter 2
+Intro to Descriptive Statistics (EDA) II	Descriptive Statistics	Assignment
+
+Topic 4	Open Intro to Stats 3.1, 3.2 and Chpt 4
+Reading: Introduction to Stats Learning 2.1 and 2.2
+Hypothesis Testing and Statistical Inference – Chi-Square	In Class Exercise	
+
+Topic 5	
+Open Intro to Stats 5.5	
+ANOVA - Model comparison 	
+
+Topic 6 	
+Reading: Doing Data Science Chapter 3, Intro to Stats Learning Chapter 3
+Open Intro to Stats Chapter 7	
+Intro to Model Building: Prediction Regression  I	In Class Exercise	Assignment
+				
+Project I Presentations
+
+Topic 7	
+Open Intro to Stats Chapter 8
+Intro to Model Building: Prediction  Regression II
+
+Topic 8 
+Reading Intro to Statistical Learning 6.1 and 6.5	Feature Selection/Sub- Setting/RMSE	Speaker	Assignment
+
+Topic 9  
+Reading Doing Data Science Chapter 71 - 81, Intro to Stats Learning 4.6.5, Doing Data Science Chapter 71 - 81
+Clustering: K-Nearest Neighbor	
+	
+Topic 10    	
+Reading Intro to Stats Learning 4.1, 4.2, 4.3
+Open Intro to Stats 8.4	
+Model Building: Classification I: Logistic Regression/GLM	In Class Exercise	Assignment
+
+Topic 11  
+Reading Intro to Statistical Learning 6.2, 6.4, 6.6	Lasso Regression	In Class Exercise	Quiz
+
+Topic 12 
+Reading Intro to Stats Learning Chapter 8 
+Decision Trees
+
+Final Projects Presentations
+
+
+
+
+TIME REQUIRED 
+
+During the semester, including study time for quizzes, students are expected to spend a minimum of one and half hours of
+out-of-class work for every 50 minutes of direct instruction for a total of roughly five hours per week. 
+
+
+TEXTBOOKS AND COURSE RESOURCES 
+No one book fully captures the variety of skills and knowledge being given in this course. Consequently, I have pre-selected chapters from a variety of sources. These will all be provided prior or during the course. 
+
+Please download R and Rstudio located here: https://www.rstudio.com/products/rstudio/download/
+
+Begin to explore Data Science blogs, listservs, and journals.  A few are listed below to help get you started:
+•	http://www.datasciencecentral.com/
+•	https://www.analyticsvidhya.com/
+•	http://www.datatau.com/
+•	https://www.facebook.com/data?_rdr=p
+•	http://freakonomics.com/
+•	http://harvarddatascience.com/
+•	http://www.informationisbeautiful.net/blog/
+•	http://blog.kaggle.com/
+•	https://www.r-bloggers.com/
+•	http://blog.yhat.com/ 
+•	https://analytics.googleblog.com/ 
+•	http://datasciencemasters.org/ 
+
+Start networking now:
+•	Follow the following on Twitter for Predictive Analytics: @DataScienceCtrl, @analyticbridge, @mgualtieri, @doug_laney, @Hypatia_LeslieA, @hyounpark, and @anilbatra 
+•	Follow the following on Twitter for Big Data and Data Sciences: Vincent Granvill, Alistair Croll, Alex Popescu, @rethinkdb, Amy Heineike, Anthony Goldbloom, Ben Lorica, @oreillymedia., Bill Hewitt, Carla Gentry CSPO, David Smith, David Feinleib, Derrick Harris, DJ Patil, Doug Laney - Edd Dumbill, Eric Kavanagh, Fern Halper, Gil Press, Hilary Mason, Jake Porway, James Gingerich, James Kobielus, Jeff Hammerbacher, Jeff Kelly, Jim Harris, Justin Lovell, Kevin Weil, Krish Krishnan, Manish Bhatt, Merv Adrian, Michael Driscoll, Monica Rogati, Neil Raden, Paul Philp, Peter Skomoroch, Philip (Flip) Kromer, Philip Russom, Paul Zikopoulos, Russell Jurney, Sid Probstein, Stewart Townsend, Todd Lipcon, Troy Sadkowsky, William McKnight, Yves Mulkers
+
+
+INDEPENDENT OR OUT-OF-CLASS LEARNING 
+Average minimum amount of out-of-class or independent learning expected per week is 5 hours, for our 2.5 hour of classroom meeting. With the knowledge of basic statistics that a student must possess to take this class, the terms “average” and “minimum” should require no further explanation.
+
+
+
+
+LEARNING ASSIGNMENTS 
+In-Class Exercise: These assessments will be used to check learning and give feedback on areas for improvement. Reading prior to class, class attendance, and participation in activities are essential for success on this part of the course.
+Homework Assignments: Details on requirements will be given during class periods. Most assignments will be due the next class period and can be submitted via blackboard. We will work to provide feedback at the next class session. 
+Class Projects: Two group projects will be assigned over the semester to give students practice on applying data science principles and methods to various problems. Students will also build teamwork, communication, and technical skills.
+Quizzes: Two quizzes will be given to ensure students are gaining knowledge and doing out of class readings 
+
+GRADING
+Your final grade will be determined by:
+•	Assignments (25%)
+•	Quizzes (25%)
+•	Project I (25%)
+•	Project II (25%)
+
+GRADING SCALE
+93-100 A
+90-92 A-
+87-89 B+
+83-86 B
+80-82 B-
+77-79 C+
+73-76 C
+70-72 C-
+<70 F
+
+
+UNIVERSITY POLICIES
+OBSERVANCE OF RELIGIOUS HOLIDAYS 
+In accordance with University policy, students should notify faculty during the first week of the semester of their intention to be absent from class on their day(s) of religious observance. 
+For details and policy, see: students.gwu.edu/accommodations-religious-holidays.
+
+
+
+ACADEMIC INTEGRITY CODE
+Academic dishonesty is defined as cheating of any kind, including misrepresenting one's own work, taking credit for the work of others without crediting them and without appropriate authorization, and the fabrication of information. 
+For details and complete code, see: studentconduct.gwu.edu/code-academic-integrity
+
+SAFETY AND SECURITY
+In the case of an emergency, if at all possible, the class should shelter in place. If the building that the class is in is affected, follow the evacuation procedures for the building. After evacuation, seek shelter at a predetermined rendezvous location.
+
+SUPPORT FOR STUDENTS OUTSIDE THE CLASSROOM
+DISABILITY SUPPORT SERVICES (DSS)
+Any student who may need an accommodation based on the potential impact of a disability should contact the Disability Support Services office at 202-994-8250 in the Rome Hall, Suite 102, to establish eligibility and to coordinate reasonable accommodations. 
+For additional information see: disabilitysupport.gwu.edu/
+
+MENTAL HEALTH SERVICES  202-994-5300
+The University's Mental Health Services offers 24/7 assistance and referral to address students' personal, social, career, and study skills problems. Services for students include: crisis and emergency mental health consultations confidential assessment, counseling services (individual and small group), and referrals. 
+For additional information see: counselingcenter.gwu.edu/ 
+
