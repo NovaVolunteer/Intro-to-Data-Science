@@ -1,0 +1,18 @@
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(forcats)
+#collapse factor variables easily thanks to the forcats package!
+nsse.4$race <-nsse.4$race%>%fct_collapse(Hispanic = c("Mexican","Puerto Rican","Other Hispanic"), Other = c("Multiracial", "Asian","Other","Prefer not to respond","American Indian"))
+#forgot indian 
+nsse.4$race <-nsse.4$race%>%fct_collapse(Other = c("Other","American Indian"))
+str(nsse.4$race)
+table(nsse.4$race)
+#I need to relevel the factor variable using relevel(), note that because I added value labels the relevel() using this syntax, if there are no number lables then use the numeric 
+nsse.4 <- within(nsse.4, race <- relevel(race, ref = "White"))
+```
+
