@@ -1,0 +1,208 @@
+---
+title: "EDA II, Variance"
+author: "Brian Wright"
+date: "February 3, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=TRUE}
+#Let's load in our data and create a dataframe and take a look
+getwd()
+basehwa <- data.frame(read.csv("BaseballHeightWeight.csv", header = TRUE))
+str(basehwa)
+head(basehwa)
+getwd()
+```
+Ok so now that we've got our data loaded into a dataframe and taken a look at our variables let's do some analysis 
+```{r, echo=TRUE}
+#Start with individual variables of Height Weight and Age
+height <- basehwa$Height.inches.
+weight <- basehwa$Weight.pounds.
+
+age <- basehwa$Age
+head(height)
+hist(height)
+hist(weight)
+shapiro.test(height)
+boxplot(height)
+qqnorm(height)
+qqline(height)
+sd.height <- sd(height)
+mean.height <- mean(height)
+sd.weight <- sd(weight, na.rm = TRUE)
+mean.weight <- mean(weight, na.rm = TRUE)
+mean.weight
+sd.weight
+sd.height
+```
+Handy Outlier Function
+
+```{r, eval=TRUE}
+outlierKD <- function(dt, var) {
+     var_name <- eval(substitute(var),eval(dt))
+     na1 <- sum(is.na(var_name))
+     m1 <- mean(var_name, na.rm = T)
+     par(mfrow=c(2, 2), oma=c(0,0,3,0))
+     boxplot(var_name, main="With outliers")
+     hist(var_name, main="With outliers", xlab=NA, ylab=NA)
+     outlier <- boxplot.stats(var_name)$out
+     mo <- mean(outlier)
+     var_name <- ifelse(var_name %in% outlier, NA, var_name)
+     boxplot(var_name, main="Without outliers")
+     hist(var_name, main="Without outliers", xlab=NA, ylab=NA)
+     title("Outlier Check", outer=TRUE)
+     na2 <- sum(is.na(var_name))
+     cat("Outliers identified:", na2 - na1, "n")
+     cat("Propotion (%) of outliers:", round((na2 - na1) / sum(!is.na(var_name))*100, 1), "n")
+     cat("Mean of the outliers:", round(mo, 2), "n")
+     m2 <- mean(var_name, na.rm = T)
+     cat("Mean without removing outliers:", round(m1, 2), "n")
+     cat("Mean if we remove outliers:", round(m2, 2), "n")
+     response <- readline(prompt="Do you want to remove outliers and to replace with NA? [yes/no]: ")
+     if(response == "y" | response == "yes"){
+          dt[as.character(substitute(var))] <- invisible(var_name)
+          assign(as.character(as.list(match.call())$dt), dt, envir = .GlobalEnv)
+          cat("Outliers successfully removed", "n")
+          return(invisible(dt))
+     } else{
+          cat("Nothing changed", "n")
+          return(invisible(var_name))
+     }
+}
+outlierKD(basehwa, height)
+```
+
+Plot a single variable 
+```{r, echo=TRUE}
+library(ggplot2)
+qplot(seq_along(height), height)
+```
+
+We can also run the vairance
+```{r, echo=TRUE, eval=TRUE}
+var(height)
+mean(height)
+sd(height)
+```
+Now that we know the mean and std we can generate a z score for individual heights and probabilities
+```{r, echo=TRUE}
+z <- (80-mean.height)/sd.height
+z
+
+# No that we have a z score we could look it up on a table or use R to calculate the percentage, pnorm tells us the percentage.
+pnorm(z)
+pnorm(2.73)
+```
+
+Confidence Intervals we can use the t.test command
+```{r}
+t.test(height)
+```
+
+So we could also do confidence intervals by hand, we need the standard error, mean and n for height, qnorm essential gives us our z-score
+```{r, echo=TRUE}
+qnorm(.975)
+
+n <- length(height)
+n
+std.error <- qnorm(.975)*sd.height/sqrt(n)
+std.error
+lower.limit <- mean.height-std.error
+upper.limit <- mean.height+std.error
+lower.limit
+upper.limit
+```
+
+```{r}
+n <- length(weight)
+n
+std.error <- qnorm(.975)*sd.weight/sqrt(n)
+std.error
+lower.limit <- mean.weight-std.error
+upper.limit <- mean.weight+std.error
+lower.limit
+upper.limit
+
+
+```
+
+
+Take a quick look at scale variables. 
+```{r}
+#Allows variables to speak the same language and be interpreted as such. 
+describe(weight)
+describe(height)
+hist(weight)
+hist(height)
+weight.scaled <- scale(weight)
+height.scaled <- scale(height)
+hist(weight.scaled)
+hist(height.scaled)
+describe(weight.scaled)
+```
+
+
+Now let's look at correlation. We use Pearson for normal dist and spearman for non-normal 
+
+```{r, echo=TRUE, eval=FALSE}
+cor(height, weight, use = "complete")
+cor(age, weight, use = "complete")
+cor(age,height, use = "complete")
+#You can also specify which test to use
+cor(height,weight, use = "complete", method="spearman")
+```
+
+Combined height and weight zscores
+```{r}
+scaledcomb <- weight.scaled+height.scaled
+hist(scaledcomb)
+describe(scaledcomb)
+hw_combined <- scale(scaledcomb)
+hist(hw_combined)
+describe(hw_combined)
+z74 <- (74-mean.height)/sd.height
+z74
+z250 <- (250-mean.weight)/sd.weight
+z74_z250comb <- z74+z250
+z74_z250comb
+z3 <- (2.432-0)/1.75
+pnorm(z3)
+data()
+
+
+```
+
+Let's Play Around With Line Fitting 
+```{r, echo=FALSE, eval=FALSE}
+sml <- loess(height~weight)
+plot(weight,height)
+lines(predict(sml), col='red', lwd=2)
+scatter.smooth(height,weight, family = "gaussian")
+```
+We can also use a function call scale, which is also handy for transforming variables, should it be needed. 
+```{r, echo=TRUE, eval=FALSE}
+#Scale subtracts each entry from the mean and then divides it by the standard dev, essentially create a vector of z-scores
+zheight <- scale(height)
+head(zheight)
+hist(zheight)
+M <- median(zheight)
+pnorm(M)*100
+percent.height <- pnorm(zheight)
+hist(percent.height)
+head(percent.height)
+height.precent.dec <- sort(percent.height)
+head(height.precent.dec)
+fix(height.precent.dec)
+fix(height)
+```
+
+```{r}
+mtcars_cor <- cor(mtcars, method = "pearson")
+corrplot(mtcars_cor, method = "circle", type = "lower", tl.col = "black", tl.srt = 45)
+```
+
+
