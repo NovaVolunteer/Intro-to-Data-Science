@@ -1,0 +1,73 @@
+---
+title: "Subsetting/Alternat Fitting"
+author: "Brian Wright"
+date: "April 7, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/bwright/Documents/R")
+```
+
+Simple example of subset data we've used previously, just indicate where we want to target using the subset feature
+```{r}
+#plot first to take a look at the data
+str(cars)
+plot(cars$speed, cars$dist, main = "Cars Plot", xlab="Speed", ylab="Distance")
+#can add a line as well
+scatter.smooth(cars)
+#Look at some initial desc stats
+library(pastecs)
+ stat.desc(cars)
+#Looks like we have a linear line
+# Go ahead a develop our model
+# Does Speed effect stoping distance?
+x <- lm(dist~speed, data = cars)
+head(cars)
+summary(x)
+speed.s <- scale(cars$speed, center = TRUE, scale = FALSE)
+#Here we are focusing on cars with speed greater than 15mph
+x1 <- lm(dist~speed,data = subset(cars,speed>15))
+summary(x1)
+```
+
+However once we get up to a significant number of variables and we want to know which most explain the variance in our dependent variable. 
+```{r}
+library(leaps)
+library(ISLR)
+#This is essentially best fit 
+View(Hitters)
+reg.best <- regsubsets(Salary~., data = Hitters, nvmax = 19)
+#The plot will show the Adjust R^2 when using the variables across the bottom
+plot(reg.best, scale = "adjr2", main = "Adjusted R^2")
+summary(reg.best)
+
+#We can also go backward and see if our results are any different
+reg.back <- regsubsets(Salary~., data = Hitters, method = "backward", nvmax = 20)
+#The plot will show the Adjust R^2 when using the variables across the bottom
+plot(reg.back, scale = "adjr2", main = "Adjusted R^2")
+summary(reg.back)
+
+#We can also be forward selection
+reg.forward <- regsubsets(Salary~., data = Hitters, nvmax = 7, nbest = 1, method = "forward")
+summary(reg.forward)
+#Maybe we try with even less variables 
+plot(reg.forward, scale = "adjr2", main = "Adjusted R^2")
+reg.forward
+#Lastly we can do the hybrid approach
+reg.seqrep <- regsubsets(Salary~., data = Hitters,nvmax = 7, nbest = 1, method = "seqrep")
+plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
+#Here we want the hieghest Adjusted R^2 which looks to be .5, then looking across the .5 row wherever we see a black box is a recommended variable to use. 
+#Looks like pretty much the same variables, we can also do Cp as discussed in the slides
+plot(reg.seqrep, scale = "Cp", main = "Cp")
+#Here it looks like we are again selecting pretty much the same variables, by using the lowest Cp 
+summary(reg.seqrep)
+```
+
+```{r}
+
+
+```
+
+
