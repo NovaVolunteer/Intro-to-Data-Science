@@ -1,0 +1,160 @@
+---
+title: "KNN"
+author: "Brian Wright"
+date: "October 31, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+bank_data = read.csv("bank.csv",                #<- name of the data set.
+                     check.names = FALSE,       #<- don't change column names.
+                     stringsAsFactors = FALSE)  #<- don't convert the numbers and characters to factors.
+
+
+
+# Check the structure and view the data.
+str(bank_data)
+View(bank_data)
+```
+
+
+```{r}
+# Let's run the kNN algorithm on our banking data. 
+# Check the composition of labels in the data set. 
+table(bank_data$`signed up`)
+table(bank_data$`signed up`)[2] / sum(table(bank_data$`signed up`))
+
+# This means that at random, we have an 11.6% chance of correctly picking
+# out a subscribed individual. Let's see if kNN can do any better.
+
+# Let's split the data into a training and a test set.
+# Sample 80% of our know data as training and 20% as test.
+set.seed(1)
+bank_data_train_rows = sample(1:nrow(bank_data),     #<- from 1 to the number of 
+                                                     #   rows in the data set
+                              round(0.8 * nrow(bank_data), 0),  #<- multiply the 
+                                                                #   number of rows
+                                                                #   by 0.8 and round
+                                                                #   the decimals
+                              replace = FALSE)       #<- don't replace the numbers
+
+
+
+# Let's check to make sure we have 80% of the rows. 
+length(bank_data_train_rows) / nrow(bank_data)
+
+bank_data_train = bank_data[bank_data_train_rows, ]  #<- select the rows identified in
+                                                     #   the bank_data_train_rows data
+bank_data_test = bank_data[-bank_data_train_rows, ]  #<- select the rows that weren't
+                                                     #   identified in the
+                                                     #   bank_data_train_rows data
+
+# Check the number of rows in each set.
+nrow(bank_data_train)
+nrow(bank_data_test)
+
+```
+Train the classifier 
+
+```{r}
+# Let's train the classifier for k = 3. 
+# Install the "class" package that we'll use to run kNN.
+# Take some time to learn about all its functionality.
+install.packages("class") 
+library(class)
+library(help = "class")  
+
+# k-Nearest Neighbor is a randomized algorithm, so make sure to
+# use set.seed() to make your results repeatable.
+set.seed(1)
+bank_3NN = knn(train = bank_data_train[, c("age", "balance", "duration")],  #<- training set cases
+               test = bank_data_test[, c("age", "balance", "duration")],    #<- test set cases
+               cl = bank_data_train[, "signed up"],                         #<- category for true classification
+               k = 3,                                                       #<- number of neighbors considered
+               use.all = TRUE)                                              #<- control ties between class assignments
+                                                                            #   If true, all distances equal to the kth 
+                                                                            #   largest are included
+
+# View the output.
+str(bank_3NN)
+length(bank_3NN)
+table(bank_3NN)
+```
+Compare to the original data
+
+```{r}
+# How does the kNN classification compare to the true class?
+# Let's take a look at the confusion matrix by combining the 
+# predictions from bank_3NN to the original data set.
+kNN_res = table(bank_3NN,
+                bank_data_test$`signed up`)
+kNN_res
+sum(kNN_res)  #<- the total is all the test examples
+
+# Select the true positives and true negatives by selecting
+# only the cells where the row and column names are the same.
+kNN_res[row(kNN_res) == col(kNN_res)]
+
+# Calculate the accuracy rate by dividing the correct classifications
+# by the total number of classifications.
+kNN_acc = sum(kNN_res[row(kNN_res) == col(kNN_res)]) / sum(kNN_res)
+kNN_acc
+
+# An 86.1% accuracy rate is 7.4x the base rate of 11.6%, or our chances
+# of classifying people correctly at random.
+```
+Selecting the correct "k"
+```{r}
+# How does "k" affect classification accuracy? Let's create a function
+# to calculate classification accuracy based on the number of "k."
+chooseK = function(k, train_set, val_set, train_class, val_class){
+  
+  # Build knn with k neighbors considered.
+  set.seed(1)
+  class_knn = knn(train = train_set,    #<- training set cases
+                  test = val_set,       #<- test set cases
+                  cl = train_class,     #<- category for classification
+                  k = k,                #<- number of neighbors considered
+                  use.all = TRUE)       #<- control ties between class assignments
+                                        #   If true, all distances equal to the kth 
+                                        #   largest are included
+  
+  tab = table(class_knn, val_class)
+  
+  # Calculate the accuracy.
+  accu = sum(tab[row(tab) == col(tab)]) / sum(tab)                         
+  cbind(k = k, accuracy = accu)
+}
+
+# The sapply() function plugs in several values into our chooseK function.
+# function(x)[function] allows you to apply a series of numbers
+# to a function without running a for() loop.
+knn_different_k = sapply(seq(1, 21, by = 2),  #<- set k to be odd number from 1 to 21
+                         function(x) chooseK(x, 
+                                             train_set = bank_data_train[, c("age", "balance", "duration")],
+                                             val_set = bank_data_test[, c("age", "balance", "duration")],
+                                             train_class = bank_data_train[, "signed up"],
+                                             val_class = bank_data_test[, "signed up"]))
+
+# Reformat the results to graph the results.
+str(knn_different_k)
+knn_different_k = data.frame(k = knn_different_k[1,],
+                             accuracy = knn_different_k[2,])
+
+# Plot accuracy vs. k.
+install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(knn_different_k,
+       aes(x = k, y = accuracy)) +
+  geom_line(color = "orange", size = 1.5) +
+  geom_point(size = 3)
+
+# 5 nearest neighbors seems to be a good choice because that's the
+# greatest improvement in predictive accuracy before the incremental 
+# improvement trails off.
+```
