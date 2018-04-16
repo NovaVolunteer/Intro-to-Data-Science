@@ -1,0 +1,142 @@
+---
+title: "Bike Riders"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+
+
+library(e1071)
+bike = read.csv("bike data.csv", check.names = FALSE)
+
+# What does our data look like?
+View(bike)
+str(bike)
+
+
+
+# We first want to isolate data to exclude variability based on 
+# hour of the day and weekends and holidays. Let's subset data only for 
+# weekdays at noon.
+bike_weekday_noon = subset(bike, 
+                           `Working Day` == 1 & Hour == 12)  #<- criteria for subsetting
+View(bike_weekday_noon)
+str(bike_weekday_noon)
+hist(bike_weekday_noon$`Total Users`)
+skewness(bike_weekday_noon$`Total Users`)
+
+# Let's run a linear regression model of temperature vs. number of bike rentals
+# so you can see the results and use them in your analysis.
+lm_weekday_noon_temp = lm(formula = `Total Users` ~`Temperature F`+ Humidity+as.factor(Season),  
+                          data = bike_weekday_noon)  
+summary(lm_weekday_noon_temp)
+attach(bike_weekday_noon)
+
+lm_weekday_noon_temp$rank
+
+table(Season)
+
+#Check our assumptions
+
+cor(`Temperature F`,Humidity) # Looks good 
+
+plot(lm_weekday_noon_temp$fitted.values,lm_weekday_noon_temp$residuals)# Not so good
+
+library(car)
+ncvTest(lm_weekday_noon_temp) # Want this to be greater than .05
+
+skewness(lm_weekday_noon_temp$residuals) # Within range, anything over 1 indicates a skewed distribution 
+hist(lm_weekday_noon_temp$residuals) # Looks normal 
+
+#Let's see if we can improve the model
+lm_weekday_noon_temp_2 = lm(formula = `Total Users` ~`Temperature F`+ Humidity,  
+                          data = bike_weekday_noon) 
+summary(lm_weekday_noon_temp_2)
+
+plot(lm_weekday_noon_temp_2$fitted.values,lm_weekday_noon_temp_2$residuals)
+
+ncvTest(lm_weekday_noon_temp_2) #Still not great
+
+skewness(lm_weekday_noon_temp_2$residuals)
+
+hist(bike_weekday_noon$`Total Users`)
+skewness(bike_weekday_noon$`Total Users`)
+
+```
+
+Create a 3d plane of the regression model
+
+```{r}
+# Let's plot our model on a 3D plane. Let's add a column to our data that will 
+# represent seasons of the year with a different color.
+season_color = ifelse(bike$Season == 1, "green",
+                      ifelse(bike$Season == 2, "red",
+                             ifelse(bike$Season == 3, "yellow",
+                                    ifelse(bike$Season == 4, "black", NA))))
+
+# Add the new column we created to the bike data set.
+bike_season_color = cbind(bike, season_color)
+View(bike_season_color)
+
+bike_weekday_noon = subset(bike_season_color, 
+                           `Working Day` == 1 & Hour == 12)
+
+multi_reg_bike_weekday_noon = lm(formula = `Total Users` ~   #<- the "~" sign is followed by the independent variables (predictors)
+                                   `Temperature F` +         #<- the "+" sign is followed by additional independent variables (predictors)
+                                   Humidity,              
+                                 data = bike_weekday_noon)
+
+summary(multi_reg_bike_weekday_noon)
+
+
+dev.off()
+install.packages("scatterplot3d")
+library(scatterplot3d)
+
+s3d = scatterplot3d(x = bike_weekday_noon$`Temperature F`, 
+                    y = bike_weekday_noon$Humidity, 
+                    z = bike_weekday_noon$`Total Users`,  
+                    #xlim = c(0, 100),         #<- set the limits of the x-axis           
+                    #ylim = c(15, 35),         #<- set the limits of the y-axis                     
+                    #zlim = c(0, 250),         #<- set the limits of the z-axis         
+                    xlab = "Temperature F",                                 
+                    ylab = "Humidity %",                                  
+                    zlab = "Number of Bikes Rented",                        
+                    main = "Washington DC Bike Sharing Analysis",    
+                    color = bike_weekday_noon$season_color,  #<- color of each point  
+                    pch = 20,                  #<- size of the points
+                    box = TRUE,                #<- whether to display a box around the grid
+                    grid = TRUE,               #<- whether to display a grid between the x and y axes
+                    #highlight.3d = TRUE,      #<- can be used to automatically create a color gradient
+                    #type = "h",               #<- adds vertical lines that lead to the points, which can make it easier to interpret the graph     
+                    #lty.hplot = "solid")      #<- specifies what type of line should lead up to the points if "type" is set to "h"
+                    angle = 70)                #<- angle between the x and y axes
+
+#Add a regression plane and modify the legend 
+
+s3d$plane3d(multi_reg_bike_weekday_noon,  #<- the regression object from the multiple regression we ran
+            col = "orange",               #<- color of the lines of the plane
+            lty.box = "solid")            #<- a solid border around the best-fit plane
+
+# Add legend that identify colors.
+legend(s3d$xyz.convert(20, 100, 500),     #<- location coordinates of the legend (x, y, z)
+       legend = c("Spring",               #<- labels of the legend
+                  "Summer", 
+                  "Fall", 
+                  "Winter"),
+       col = c("green",                   #<- colors associated with each label
+               "red", 
+               "yellow", 
+               "black"),  
+       cex = 0.8,                         #<- size and spacing of text
+       pch = 16) 
+
+
+```
+
+```{r}
