@@ -1,0 +1,84 @@
+---
+title: "Assignment 1 Example"
+author: "Brian Wright"
+date: "January 28, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We can use dplyr to try to find the average admitance depending on school rank, first for ease of view in the window we can turn this into a dplry table 
+
+```{r, echo=TRUE}
+getwd()
+library(dplyr)
+Admit <- read.csv("LogReg.csv")
+head(Admit)
+#The code below makes a dplyr table or dataframe which allows us to do all sorts of quick data manipulation
+admit_df <- tbl_df(Admit)
+admit_df
+```
+
+Next let's do some filtering to see who is getting admited
+```{r, echo=TRUE}
+#Below we can filter just on those that have been admitted
+admit_df_rank1 <- filter(admit_df, admit==1)
+View(admit_df_rank1)
+summary(admit_df_rank1)
+admit_df_rank2 <- filter(admit_df, admit==0)
+summary(admit_df_rank2)
+fix(admit_df_rank1)
+```
+
+We can also try some grouping and then arrange by rank
+```{r, echo=TRUE}
+rank_group <- group_by(admit_df, rank)
+rank_group
+summarise(rank_group, mean(gre), mean(gpa))
+rank_group.a <- arrange(rank_group, desc(rank))
+
+```
+
+Ok now that we have the grouping and sorting we want we can start to do some additional summary stats, below gives us the average admits from each rank by creating a new variable showing the average number of admitance from each rank
+
+```{r, echo=TRUE}
+rank_admits <- summarize(rank_group, count=n(), average=mean(admit))
+#So we can see that admitance rate for those in rank 1 is more than double rank 3 and triple that of rank 4
+rank_admits
+```
+
+We can also do the sum to get the numbers being admitted
+```{r, echo=TRUE}
+rank_admits.1 <- summarize(rank_group, count=n(), admits=sum(admit))
+rank_admits.1
+```
+Now let's focus on the ISLR data
+
+```{r, echo=TRUE,eval=FALSE}
+#Let's load the package and library
+install.packages("ISLR")
+library(ISLR)
+library(doBy)
+#Even though its already in a tight structure is good to make a data.frame
+x <- data.frame(Auto)
+# Ok now we know something about the dataset. The question we are trying to answer is what is the average MPG, by year and cylinder size?
+ave_mpg_year_cyl <- summaryBy(mpg~year+cylinders, data = x)
+head(ave_mpg_year_cyl)
+```
+Homework with DPLYR
+```{r, echo=TRUE}
+library(dplyr)
+library(magrittr)
+ave_mpg_yrcyl <- data.frame(Auto)
+ave_mpg_yrcyl %<>%
+  group_by(year, cylinders) %>%
+  summarise (avgmpg= mean(mpg))
+head(ave_mpg)
+```
+
+```{r}
+
+
+```
