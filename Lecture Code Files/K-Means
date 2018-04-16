@@ -1,0 +1,91 @@
+#Step 1: load data
+
+getwd()
+# Loading data. Below is a Mac directory, for Windows use setwd("C:/Desktop/Clustering/Data")
+setwd("set file path")         #<- set the working directory 
+#   (tell R where to get the files)
+house_votes_Dem = read.csv("house_votes_Dem.csv")
+
+# What does the data look like?
+View(house_votes_Dem)
+str(house_votes_Dem)
+table(house_votes_Dem$party.labels)
+
+
+#==================================================================================
+
+# Step 2: run k-means ####
+
+# Define the columns to be clustered by subsetting the data.
+# Placing the vector of columns after the comma inside the 
+# brackets tells R that you are selecting columns.
+clust_data_Dem = house_votes_Dem[, c("aye", "nay", "other")]
+View(clust_data_Dem)
+
+# Run an algorithm with 2 centers.
+# kmeans uses a different starting data point each time it runs.
+# Make the results reproducible with the set.seed() function.
+set.seed(1)
+kmeans_obj_Dem = kmeans(clust_data_Dem, centers = 2, 
+                        algorithm = "Lloyd")   #<- there are several ways of implementing k-means, see the help menu for a full list
+
+# What did the kmeans function produce, 
+# what does the new variable kmeans_obj contain?
+kmeans_obj_Dem
+
+# View the results of each output of the kmeans function.
+head(kmeans_obj_Dem)
+
+#==================================================================================
+
+#Step 3: visualize plot ####
+
+# Tell R to read the cluster labels as factors so that ggplot2 
+# (the graphing package) can read them as category labels instead of 
+# continuous variables (numeric variables).
+party_clusters_Dem = as.factor(kmeans_obj_Dem$cluster)
+
+# What does the kmeans_obj look like?
+View(party_clusters_Dem)
+View(as.data.frame(party_clusters_Dem))
+
+# Set up labels for our data so that we can compare Democrats and Republicans.
+party_labels_Dem = house_votes_Dem$party
+
+#==================================================================================
+
+# Step 3: visualize plot ####
+library(ggplot2)
+ggplot(house_votes_Dem, aes(x = aye, 
+                            y = nay,
+                            shape = party_clusters_Dem)) + 
+  geom_point(size = 6) +
+  ggtitle("Aye vs. Nay votes for Democrat-introduced bills") +
+  xlab("Number of Aye Votes") +
+  ylab("Number of Nay Votes") +
+  scale_shape_manual(name = "Cluster", 
+                     labels = c("Cluster 1", "Cluster 2"),
+                     values = c("1", "2")) +
+  theme_light()
+
+#==================================================================================
+
+# Step 4: validate results ####
+
+ggplot(house_votes_Dem, aes(x = aye, 
+                            y = nay,
+                            color = party_labels_Dem,  #<- tell R how to color 
+                            #   the data points
+                            shape = party_clusters_Dem)) + 
+  geom_point(size = 6) +
+  ggtitle("Aye vs. Nay votes for Democrat-introduced bills") +
+  xlab("Number of Aye Votes") +
+  ylab("Number of Nay Votes") +
+  scale_shape_manual(name = "Cluster", 
+                     labels = c("Cluster 1", "Cluster 2"),
+                     values = c("1", "2")) +
+  scale_color_manual(name = "Party",         #<- tell R which colors to use and
+                     #   which labels to include in the legend
+                     labels = c("Republican", "Democratic"),
+                     values = c("red", "blue")) +
+  theme_light()
