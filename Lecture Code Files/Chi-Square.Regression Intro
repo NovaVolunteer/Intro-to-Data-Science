@@ -1,0 +1,138 @@
+---
+title: "Regression Single Variable and Chi Square"
+author: "Brian Wright"
+date: "February 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=TRUE}
+#load package vcd 
+library(vcd)
+str(Arthritis)
+#We can see from the summary that we have several factor (categorical) level and one ordered factor (ordinal) 
+# So if we want to run a test of indendence and Chi Square is perfect, 
+#Trying to determine if Treatment and Improved are independent 
+#We will set the signifance level at .05 and generate a test statistic
+chisq.test(Arthritis$Treatment,Arthritis$Improved)
+# Results show us that p value is less than .05 meaning our test is significant
+#You can also create a table first, some people like to do this because it makes certain steps more visable, such percentages in the categories and totals
+tbl <- table(Arthritis$Treatment, Arthritis$Improved)
+#The results should be the same. 
+cxtbl <-  chisq.test(tbl)
+cxtbl$residuals
+cxtbl$observed
+cxtbl$expected
+#By looking at the expected and observed and residuals we can see that the observed are different than the expected, residuals equal (observed - expected) / sqrt(expected)
+```
+Simple Linear Regression
+```{r, echo=TRUE}
+#For this example we are going to use data from the faraway library from the package with the same name.
+library(faraway)
+library(car)
+library(e1071)
+library(fmsb)
+#The data set is stat500, so let's take a look
+str(stat500)
+#Determine whether midterm and homework grades predict the final, first we need to check some assumptions
+#Assumption 1:Normality of the dependent variable, doesn't have to be perfectly shaped
+shapiro.test(stat500$hw)
+hist(stat500$hw)
+hist(stat500$final)
+kurtosis(stat500$hw)
+#For skewnees(e1071): Anything below 2 is great between 2 -5 causes concern and anything over five needs help
+skewness(stat500$midterm)
+#Assumption 2:Linear relationship of dep and indep
+scatter.smooth(stat500$midterm,stat500$final)
+#Assumption 3: Multicollinearity is used to see if the independent variables have a relationship or are correlated, we only have one, so we are good, can also check after with VIF 
+#Assumtption 4: Homoscedasticity, error terms are consistent, check after with ncvTest(), which similar to the shapiro.test we want to be greater than .05
+library(car)
+library(fmsb)
+Final.Pred.Model <- lm(final~midterm,data=stat500)
+summary(Final.Pred.Model)
+qnorm(Final.Pred.Model$residuals)
+hist(Final.Pred.Model$residuals)
+kurtosis(Final.Pred.Model$residuals)
+
+qqnorm(Final.Pred.Model$residuals,
+       ylab = "Observed Quantiles",
+       main = "Q-Q Plot to Test Normality of Residuals")
+
+qqline(Final.Pred.Model$residuals,
+       col = "red", 
+       lwd = 3)
+
+
+ncvTest(model.final)
+
+
+
+#Looks like we are good
+summary(model.final)
+coef(model.final)
+#We want this to be less than 2, in the fmsb package
+VIF(model.final)
+spreadLevelPlot(model.final)
+#Or we can skip all these individual steps and just run the gvlma
+library(gvlma)
+assump <- gvlma(model.final)
+assump
+
+stat500_corr <- cor(stat500)
+corrplot(stat500_corr, method = "number", type = "lower", tl.col = "black", tl.srt = 45)
+
+
+model.mtcars <- lm(mpg~disp, mtcars)
+summary(model.mtcars)
+
+hist(model.mtcars$residuals)
+
+str(mtcars)
+
+
+
+```
+We can also add the results of our predictions to the dataframe
+```{r, echo=TRUE}
+library(modelr)
+#modelr is a powerful package for regression
+model.final.pred <- add_predictions(stat500,model.final)
+head(model.final.pred)
+library(ggplot2)
+ggplot(model.final.pred,aes(final,pred))+geom_point(aes(final,pred))+geom_line(aes(pred), colour="red", size=1)
+# We can also add the residuals 
+model.final.pred <- add_residuals(model.final.pred,model.final)
+head(model.final.pred)
+ggplot(model.final.pred, aes(resid))+geom_freqpoly(binwidth=.05)
+```
+We can also use a few simple functions from the broom package
+```{r, echo=TRUE}
+library(broom)
+#tidy will create a dataframe of our results
+tidy_model <-  tidy(model.final)
+tidy_model
+#augment will add the model output
+Model_Summary <- augment(model.final)
+head(Model_Summary)
+```
+We can also use the formula with predict, to well predict future values
+```{r, echo=TRUE}
+library(stats)
+predict(model.final,data.frame(midterm=c(17,20,25),hw=c(0,0,0)))
+
+```
+
+Let's practice in Class with the mtcars dataset
+```{r}
+?mtcars
+str(mtcars)
+
+m1 <- lm(mpg~hp, data = mtcars)
+summary(m1)
+
+```
+
+
