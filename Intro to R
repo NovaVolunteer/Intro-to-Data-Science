@@ -1,0 +1,133 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+?summary
+summary(cars)
+data()
+getwd()
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+# You can also put code right in the chunk if you want. 
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### Slightly Bigger Header: What is a package? 
+
+```{r, echo=TRUE}
+install.packages("ggplot2")
+library(ggplot2)
+?ggplot2::mpg
+head(ggplot2::mpg)
+?ggplot
+ggplot(data=ggplot2::mpg)+
+  geom_point(mapping = aes(x=displ, y=hwy))
+```
+
+Now we can also add a color into the mix with a simple adjustment to the code
+```{r, echo=TRUE,tidy=TRUE}
+ggplot(data=ggplot2::mpg)+
+  geom_point(mapping = aes(x=displ, y=hwy, color=class))
+```
+
+So how do we get data into R: First we have to know where R is pulling our data from, we can do this by determing the location of our current working directy 
+
+```{r, echo=TRUE}
+getwd()
+```
+
+
+If you want to move your working directory you can use the setwd("Insert File Location Here") Also for Rmarkdown to run properly it needs to be saved in the same location as your data
+
+Download the dataset and save it somewhere on your computer.
+
+```{r, echo=TRUE, eval=FALSE}
+Admit <- data.frame(read.csv("LogReg.csv"))
+head(Admit)
+str(Admit)
+```
+So looking at the data could we graph something similar to what we did before that had meaning 
+```{r, echo=TRUE, eval=FALSE}
+ggplot(data = Admit)+
+  geom_point(mapping = aes(x=gre, y=gpa, color=admit))
+
+```
+So what does this tell us?
+
+```{r, eval=FALSE}
+ggplot(data = Admit)+
+  geom_point(mapping = aes(x=gre, y=gpa, color=rank))
+```
+
+You can also view the data using a fix() or view() in a more traditional cell formate and dim to gather some structural information 
+```{r, echo=TRUE, eval=FALSE}
+x <- head(mtcars)
+x
+
+fix(x)
+View(mtcars)
+
+```
+So we can also do some really basic statistical exploration
+```{r,echo=TRUE, eval=FALSE}
+
+str(mtcars)
+mean(mtcars$mpg)
+install.packages("sapply")
+library(sapply)
+sapply(mtcars, mean, na.rm=TRUE)
+install.packages("pastecs")
+library(pastecs)
+stat.desc(mtcars)
+install.packages("psych")
+library(psych)
+describe(mtcars)
+#can also use the help function to better understand package contents
+?describe
+```
+
+```{r}
+data()
+```
+
+Source:https://catalog.data.gov/dataset/deaths-in-122-u-s-cities-1962-2016-122-cities-mortality-reporting-system
+
+```{r}
+getwd()
+setwd("C:/Users/bwright/Documents/R")
+Deaths <- data.frame(read.csv("Deaths_122_Cities.csv"))
+str(Deaths)
+View(Deaths)
+attach(Deaths)
+plot(State,All.Deaths, type="h")
+plot(Year,All.Deaths, type = "h")
+library(ggplot2)
+#Could also use ggplot@
+ggplot(Deaths,aes(x=State,y=All.Deaths))+geom_bar(stat = "identity")
+sum(is.na(Deaths))
+
+```
+
+```{r}
+library(ISLR)
+?Auto
+```
+Load the NBA dataset and conduct exploritory data analysis, determine the structure, run descripitive stats, determine if there are missing values, using ggplot and plot
+```{r, echo=TRUE}
+
+
+```
+
+```{r}
+View(NBA)
+ggplot(NBA,aes(x=TEAM,y=SALARY))+geom_bar(stat = "identity")
+```
