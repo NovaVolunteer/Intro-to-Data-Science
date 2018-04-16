@@ -1,0 +1,92 @@
+---
+title: "Confidence Intervals and Chi-Square"
+author: "Brian Wright"
+date: "June 4, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+basehwa <- data.frame(read.csv("BaseballHeightWeight.csv", header = TRUE))
+str(basehwa)
+head(basehwa)
+height <- basehwa$Height.inches.
+weight <- basehwa$Weight.pounds.
+sd.height <- sd(height)
+mean.height <- mean(height)
+sd.weight <- sd(weight, na.rm = TRUE)
+mean.weight <- mean(weight, na.rm = TRUE)
+mean.weight
+sd.weight
+
+```
+Z scores
+```{r}
+z <- (80-mean.height)/sd.height
+z
+
+# No that we have a z score we could look it up on a table or use R to calculate the percentage, pnorm tells us the percentage.
+pnorm(z)
+pnorm(2.73)
+```
+
+So we could also do confidence intervals, we need the standard error, mean and n for height, qnorm essential gives us our z-score
+```{r, echo=TRUE}
+qnorm(.975)
+
+n <- length(height)
+n
+std.error <- qnorm(.975)*sd.height/sqrt(n)
+std.error
+lower.limit <- mean.height-std.error
+upper.limit <- mean.height+std.error
+lower.limit
+  upper.limit
+
+```
+
+Confidence Intervals t.test
+```{r}
+t.test(height)
+```
+Scaled variables, generating z-scores
+```{r}
+#Allows variables to speak the same language and be interpreted as such. 
+describe(weight)
+describe(height)
+hist(weight)
+hist(height)
+weight.scaled <- scale(weight)
+height.scaled <- scale(height)
+hist(weight.scaled)
+hist(height.scaled)
+describe(weight.scaled)
+```
+Chi-Square Example
+```{r}
+library(vcd)
+str(Arthritis)
+#We can see from the summary that we have several factor (categorical) level and one ordered factor (ordinal) 
+# So if we want to run a test of indendence and Chi Square is perfect, 
+#Trying to determine if Treatment and Improved are independent 
+#We will set the signifance level at .05 and generate a test statistic
+chisq.test(Arthritis$Treatment,Arthritis$Improved)
+# Results show us that p value is less than .05 meaning our test is significant
+#You can also create a table first, some people like to do this because it makes certain steps more visable, such percentages in the categories and totals
+tbl <- table(Arthritis$Treatment, Arthritis$Improved)
+#The results should be the same. 
+tbl
+
+cxtbl <-  chisq.test(tbl)
+
+cxtbl$residuals
+cxtbl$observed
+cxtbl$expected
+#By looking at the expected and observed and residuals we can see that the observed are different than the expected, residuals equal (observed - expected) / sqrt(expected)
+```
+
+
+
