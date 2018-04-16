@@ -1,0 +1,86 @@
+---
+title: "In Class"
+author: "Brian Wright"
+date: "June 2, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(e1071)
+
+boxplot.height <- boxplot(height)
+out.height <- boxplot.height$out
+
+out.height
+str(basehwa)
+attach(basehwa)
+
+clean.height <- subset(basehwa,Height.inches.<79)
+hist(clean.height$Height.inches.)
+shapiro.test(clean.height$Height.inches.)
+clean.height.2 <- subset(clean.height,Height.inches.>67) 
+shapiro.test(clean.height.2$Height.inches.)
+kurtosis(clean.height$Height.inches.)
+
+basehwa.small <- basehwa[1:100, ]
+shapiro.test(basehwa.small$Height.inches.)
+
+hist(basehwa.small$Height.inches.)
+
+
+boxplot(clean.height.2$Height.inches.)
+
+hist(clean.height.2$Height.inches.)
+str(basehwa$Height.inches.)
+hist(basehwa$Height.inches.)
+
+kurtosis(height)
+kurtosis(weight, na.rm = TRUE)
+kurtosis(age)
+
+#If skewness is less than ???1 or greater than +1, the distribution is highly skewed.
+#If skewness is between ???1 and ???½ or between +½ and +1, the distribution is moderately skewed.
+#If skewness is between ???½ and +½, the distribution is approximately symmetric.
+qqplot(height)
+basehwa <- data.frame(read.csv("BaseballHeightWeight.csv", header = TRUE))
+str(basehwa)
+head(basehwa)
+height <- basehwa$Height.inches.
+
+library(GGally)
+
+qqnorm(height)
+str(height)
+skewness(weight, na.rm = TRUE)
+
+weight <- basehwa$Weight.pounds.
+cor(height, weight, use = "complete")
+cor(age, weight, use = "complete")
+cor(age,height, use = "complete")
+#You can also specify which test to use
+cor(height,weight, use = "complete", method="spearman")
+```
+
+
+```{r}
+cordatac <- data.frame(nsse.4$acadpr01,nsse.4$work1,nsse.4$parentsed,nsse.4$cocurr01,nsse.4$social01.social05,nsse.4$commute,nsse.4$carede01,nsse.4$sex,nsse.4$internat, nsse.4$enter,nsse.4$livenow,nsse.4$enrlment,nsse.4$race05,nsse.4$SCE)
+#Now we want to make all our factors numeric for correlation purposes
+cordatac <- data.frame(lapply(cordatac, as.numeric))
+str(cordatac)
+cordatac2 <- cor(cordatac, method = "pearson")
+library(corrplot)
+corrplot(cordatac2, method = "circle", type = "lower", tl.col = "black", tl.srt = 45)
+```
+
+In class use faithful and then mtcars to generate a cordate plot graph 
+```{r}
+str(faithful)
+attach(faithful)
+qplot(eruptions,waiting)
+
+```
