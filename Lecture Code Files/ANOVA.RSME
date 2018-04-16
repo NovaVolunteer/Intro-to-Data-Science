@@ -1,0 +1,157 @@
+---
+title: "ANOVA - RMSE"
+author: "Brian Wright"
+date: "June 11, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(mice)
+library(VIM)
+library(stats)
+library(car)
+dietdata <- data.frame(read.csv("Dietdata.csv"))
+str(dietdata)
+md.pattern(dietdata)
+aggr_plot <- aggr(dietdata, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE,labels=names(dietdata), cex.axis=.7, gap=3, ylab=c("Histogram of missing data","Pattern"))
+countNA(dietdata)
+dietdata.1 <- mice(dietdata, m=5, maxit = 5, method = "pmm")
+dietdata.2 <- complete(dietdata.1,1)
+str(dietdata.2)
+hist(dietdata.2$gender)
+dietdata.2$gender <- factor(dietdata.2$gender,levels = c(0,1), labels = c("Female","Male"))
+dietdata.2$Diet <- as.factor(dietdata.2$Diet)
+
+str(dietdata.2)
+attach(dietdata.2)
+dietdata.2$weightlost<-pre.weight-weight6weeks
+str(dietdata.2)
+
+
+#Ok now let's build our model, trying to see if the differences for weight loss are significant depending on the type of diet 
+model.diet.diff <- aov(weightlost~Diet, data = dietdata.2)
+summary(model.diet.diff)
+#Looks like significant differences are present, let's check our assumptions
+hist(model.diet.diff$residuals, main = "Hist of Res", xlab = "Residuals")
+
+#Pretty normal so looking good
+#Can also check for equal variances with LeveneTest needs to be higher than .05, null hypothesis that the variance is equal across groups so hoping to fail to reject
+leveneTest(model.diet.diff)
+#Again looking good
+#Let's look in a little more detail concerning which levels are most important
+summary.lm(model.diet.diff)
+#Seems like Diet3 had the most impact, can also use Tukey Post Hoc 
+TukeyHSD(model.diet.diff)
+#Again seems like the differences between 3-1 and 3-2 are significant
+
+#We could also add in gender
+model.diet.diff.gender <- aov(weightlost~Diet*gender, data = dietdata.2)
+summary.lm(model.diet.diff.gender)
+TukeyHSD(model.diet.diff.gender)
+attach(dietdata.2)
+interaction.plot(Diet,gender,weightlost,type="b",col=c(2:3),leg.bty="o",leg.bg="beige",lwd=2,pch=c(18,24),xlab="Diet",ylab="Weightlost",main="Interaction plot")
+```
+
+
+The data below list % of smokers based on income and age, develop a model that assesses the influence income and age have on smoking. 
+```{r}
+smoker.data <- data.frame(read.csv("smokersdata.csv"))
+str(smoker.data)
+smoker.data$Income <- as.factor(smoker.data$Income)
+str(smoker.data)
+smoker.model <- aov(X.Smokers~Income, data = smoker.data)
+summary(smoker.model)
+TukeyHSD(smoker.model)
+```
+
+
+Root Mean Squared Error/Multiple Regression/ANNOVA Model Comparison
+
+```{r}
+library(fmsb)
+realestate <- data.frame(read.csv("RealEstate.csv",header = TRUE))
+hist(realestate$Price)
+head(realestate)
+str(realestate)
+shapiro.test(realestate$Price)
+#Actually doesn't really matter because it's our dependent variable, but good to know. Let's check out size
+shapiro.test(realestate$Size)
+#Can we also use skewness in the e1071 package, which is also a useful machine learning package
+library(e1071)
+skewness(realestate$Price)
+skewness(realestate$Size)
+hist(realestate$Size)
+x <- lm(Price~Size, realestate)
+summary(x)
+#This model stinks, so we need to try something else
+#We can try to modify the size variable but I don't think it will make much difference 
+scale.size <- scale(realestate$Size)
+#Scaling won't actually change the distibution, as we see below the shapiro test is consistant with what we saw above
+skewness(scale.size)
+shapiro.test(scale.size)
+#However log transformation will reduce the non-normality, but it's really not that bad so again I'm not sure this will help out model
+log.size <- log(realestate$Size)
+skewness(log.size)
+shapiro.test(log.size)
+#However, adding more variables will help to increase our prediction ability 
+x <- lm(Price~Size+Bathrooms+Bedrooms+Status, data = realestate)
+summary(x)
+
+#Note that the output coeficients are presented in the language of the dependent variable, for example if we were to scale price and re-run the estimates appear different. 
+scale.price <- scale(realestate$Price)
+xx <- lm(scale.price~scale.size+Bathrooms+Bedrooms+Status, data = realestate)
+summary(xx)
+#develop some prediction from our data to aid in assessing the quality
+predictions <- predict(x,realestate)
+head(predictions)
+#now we can create a output data.frame for our predictions
+lm_real_pred <- data.frame(predictions,realestate$Price)
+head(lm_real_pred)
+#We can use mean square error and root mean square error to assess the quality of our model, which is essentially the same as residual error only using the entire sample instead of the adjusting for degrees of freedom making it more sensitive to large errors in the model. 
+#Below we are subtracting our 
+library(dplyr)
+lm_real_pred <- mutate(lm_real_pred,realestate.Price-predictions)
+head(lm_real_pred)
+#change our column names for easy of use
+names(lm_real_pred) <- c("pred","price","error")
+head(lm_real_pred)
+#We could again use mutate in the dplyr library but just to reinforce the steps we'll create a separate data.from
+head(lm_real_pred$error)
+mse <- data.frame(mean((lm_real_pred$error)^2))
+#This MSE is essentially the variance of our error vector
+print(mse)
+#We take the square root to more or less get the standard deviation
+rmse_realestate <- sqrt(mse)
+print(rmse_realestate)
+#So our model still stinks and is most likely the result of needing more data or modifying our model approach to include adding the location factor, however it would most likely need to be modified for inclusion.
+library(fmsb)
+#Once we've created a model we can also assess the level to which our predictor variables are correlated, see below. 
+VIF(x)
+#Moderate, want this to be less than 2 and anything over 5 is pretty bad
+```
+
+
+
+Generate Confidence Interval and use those for prediction
+
+```{r}
+#Shows the overarching confidence intervals for the model, basically +- the error, but we can also predict the cost of a house through confidence intervals 
+confint(x)
+#First we need to create some parameters to use for our prediction
+newdata <- data.frame(Size=3000,Bathrooms=3,Bedrooms=5,Status="Regular")
+predict(x, newdata, interval="confidence")
+```
+
+We can also use ANNOVA to check and see if our models are significantly different
+```{r}
+#Checking to see if the reduction in Residual Square error is signicant 
+model1 <- lm(Price~Size+Bathrooms+Bedrooms+Status, data = realestate)
+model2 <- lm(Price~Size+Bedrooms+Status, data = realestate)
+model3 <- lm(Price~Size+Bedrooms*Bathrooms+Status, data = realestate)
+anova(model2, model1, test="Chisq")
+anova(model1, model3, test="Chisq")
+```
